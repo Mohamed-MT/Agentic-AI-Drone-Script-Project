@@ -1,198 +1,400 @@
-# ava-drone-agent-script
-Agentic AI drone control system using DroneKit, SITL, Agno, and OpenRouter — natural language flight commands with multi-step mission execution
+# AI Drone Flight Agent | Natural Language Drone Control
 
+Control a simulated drone using plain English.
 
-# AVA Drone Agent
+This Python script uses multiple AI agents to understand instructions, plan missions, perform safety checks, execute flight commands and generate flight summaries.
 
-A natural language drone control system built on top of DroneKit and the Agno agent framework. You talk to it like a person — it breaks down your commands, queues them in order, and the drone executes them autonomously. The agent understands multi-step missions, conditional logic, named locations, and learns from each session.
+Instead of manually programming every movement, you can simply type what you want the drone to do and the system will decide how to carry it out.
+
+Everything runs inside a simulated environment (SITL), so **no physical drone is required**.
+
+Examples:
+
+```text
+Take off to 20 metres.
+
+Fly north 100 metres.
+
+Fly over the hospital at 50 metres and return home.
+
+Circle the current position.
+
+Stop and hold position.
+
+Resume the mission.
+```
 
 ---
 
-## Setup
+## What does this script do?
 
-For environment setup, DroneKit installation, and SITL configuration, follow the guide here:  
-**(https://github.com/igsxf22/flight_manual/blob/main/win_install_dronekit_2026.md)**
+This project demonstrates how multiple AI agents can work together to control an autonomous system.
 
-Once your environment is ready, install the Python dependencies:
+Each agent has its own responsibility, allowing complex tasks to be broken down into smaller and safer actions.
 
-```bash
-pip install agno pydantic openai
+The system can:
+
+* Understand natural language instructions
+* Plan multi-step missions
+* Perform safety checks before flying
+* Execute drone commands
+* Monitor the drone state
+* Generate flight summaries
+* Learn user preferences over time
+* Load and execute reusable mission files using MCP
+
+Everything runs inside a simulated environment, making it safe to experiment with and easy to learn.
+
+---
+<img width="3836" height="2024" alt="Screenshot 2026-06-19 232909-Picsart-AiImageEnhancer" src="https://github.com/user-attachments/assets/95ac562c-43b1-4d52-8db6-2eb6c06a7427" />
+A natural language instruction is interpreted by the AI agent, converted into executable drone actions, and then carried out inside the ArduPilot SITL simulator.
+
+## How it works
+
+Whenever you enter an instruction, the system follows this process:
+
+```text
+User instruction
+
+↓
+
+Flight Agent
+
+↓
+
+Mission Planning
+
+↓
+
+Safety Validation
+
+↓
+
+Command Queue
+
+↓
+
+Drone Execution
+
+↓
+
+Flight Summary
 ```
 
-Then open `drone_agent.py` and set your OpenRouter API key on line 20:
+The drone can continue flying in the background while you provide additional instructions.
+
+---
+
+## AI Agents
+
+Several AI agents work together behind the scenes.
+
+### Flight Agent
+
+The main agent that understands your instructions and decides what actions need to be performed.
+
+Example:
+
+```text
+Fly north 100 metres and return home.
+```
+
+### Mission Planner
+
+Breaks larger requests into smaller steps.
+
+Example:
+
+```text
+Fly over the hospital, circle twice, then return home.
+```
+
+becomes:
+
+```text
+1. Take off
+
+2. Fly to the hospital
+
+3. Circle the location
+
+4. Return home
+
+5. Land
+```
+
+### Safety Validator
+
+Checks that missions are safe before execution.
+
+Examples include:
+
+* Maximum altitude limits
+* Minimum altitude limits
+* Speed constraints
+
+Unsafe missions are rejected automatically.
+
+### Session Summary Agent
+
+Creates a readable summary once a mission is complete.
+
+Example:
+
+```text
+The drone took off to 20 metres, flew north 100 metres, circled the target area and returned home successfully.
+```
+
+### Learning Machine
+
+Learns from previous interactions, such as:
+
+* Preferred altitude
+* Preferred speed
+* Frequently used locations
+* Common mission patterns
+
+---
+
+## Technologies Used
+
+This project uses:
+
+* Python
+* DroneKit
+* ArduPilot SITL
+* Agno
+* OpenRouter
+* PyMAVLink
+
+Optional:
+
+* Unreal Engine (telemetry visualisation)
+
+---
+
+## Environment Setup
+
+Before running the script, you will need:
+
+* Python 3.10 or newer
+* An OpenRouter API key
+* A DroneKit and ArduPilot SITL environment
+
+If you do not already have the environment set up, follow this guide first:
+
+🔗 https://github.com/igsxf22/flight_manual/blob/main/win_install_dronekit_2026.md
+
+Once the environment is working:
+
+1. Create a new Python file.
+
+2. Copy and paste the script into the file.
+
+3. At the beginning of the script, add your OpenRouter API key where it says:
 
 ```python
-os.environ["OPENROUTER_API_KEY"] = "your-key-here"
+your_api_key_here
 ```
 
-Run the script:
+4. Save the file.
+
+---
+
+## Running the Script
+
+1. Start ArduPilot SITL.
+
+2. Make sure the simulator is running on:
+
+```text
+tcp:127.0.0.1:5763
+```
+
+3. Run the Python file.
 
 ```bash
-python drone_agent.py
+python filename.py
+```
+
+You can now interact with the drone using natural language.
+
+---
+
+## Example Instructions
+
+### Basic Flight
+
+```text
+Arm the drone.
+
+Take off to 20 metres.
+
+Land the drone.
+
+Return home.
+```
+
+### Navigation
+
+```text
+Fly north 100 metres.
+
+Fly east 200 metres.
+
+Go to the hospital.
+
+Circle the current position.
+```
+
+### Multi-Step Missions
+
+```text
+Take off to 30 metres.
+
+Fly to the hospital.
+
+Circle twice.
+
+Return home.
+
+Land.
+```
+
+Or simply:
+
+```text
+Fly over the hospital at 50 metres and return home.
+```
+
+### Continuous Flight
+
+```text
+Keep moving north.
+```
+
+Stop movement:
+
+```text
+Stop
+```
+
+Resume:
+
+```text
+Resume
+```
+## Mission Files (MCP)
+
+The script includes an MCP (Model Context Protocol) integration that allows you to create reusable mission files.
+
+Instead of typing the same instructions repeatedly, you can create a mission file, save it inside the `missions` folder and then ask the agent to use it.
+
+This is useful for:
+
+- Frequently used missions
+- Testing predefined scenarios
+- Creating reusable flight routines
+- Organising larger multi-step missions
+
+### Example
+
+Create a text file inside the `missions` folder.
+
+Example:
+
+```text
+missions/
+
+hospital_patrol.txt
+```
+
+Inside the file:
+
+```text
+Take off to 30 metres.
+
+Fly to the hospital.
+
+Circle twice.
+
+Return home.
+
+Land.
+```
+
+Then ask the agent to use that mission.
+
+Example:
+
+```text
+Run hospital_patrol mission.
+```
+
+or
+
+```text
+Load the hospital_patrol mission.
+```
+
+The agent will read the file and execute the instructions step by step.
+
+> Mission files can be edited at any time, allowing you to build a library of reusable drone missions.
+---
+
+## Available Commands
+
+| Command          | Description                   |
+| ---------------- | ----------------------------- |
+| `/status`        | Show live drone status        |
+| `/battery`       | Show battery information      |
+| `/position`      | Show GPS position             |
+| `/locations`     | Show available locations      |
+| `/model`         | Show the active AI model      |
+| `/model <model>` | Switch AI models              |
+| `/state`         | Show mission state            |
+| `/report`        | Generate a flight report      |
+| `/memory`        | Show learned preferences      |
+| `/mission`       | Run the full mission workflow |
+
+---
+
+## Available Locations
+
+The simulation includes several predefined locations:
+
+```text
+home
+airfield
+runway 35
+runway 17
+hospital
+prison
+camp a
+camp b
+reserve
+residence 1
+residence 2
+creek south
+location 1
 ```
 
 ---
 
-## How It Works
+## Safety Notes
 
-The script is built around one core idea: every command you type gets translated by an AI agent into a sequence of tool calls, each of which puts a command into a thread-safe queue. A separate executor thread runs in the background, pulling commands from that queue and sending them to the drone one at a time. The AI and the drone operate independently — the agent finishes deciding what to do and returns control to you immediately, while the drone keeps executing in the background.
+This project was designed for simulation and research purposes.
 
-```
-You type a command
-      |
-      v
-AI Agent (Agno + OpenRouter)
-      |
-      v
-DroneToolkit — queues commands into command_queue
-      |
-      v
-Executor Thread — runs commands sequentially
-      |
-      v
-DroneKit — sends MAVLink messages to SITL/drone
-      |
-      v
-Unreal Engine — receives position via TCP relay at 60Hz
+Current limits:
+
+```text
+Maximum altitude: 120 m
+
+Minimum altitude: 2 m
+
+Maximum speed: 15 m/s
 ```
 
----
+Battery values are simulated and should not be used for decision making.
 
-## Script Sections
-
-### DroneKit Connection
-The script opens a single TCP connection to the vehicle at `127.0.0.1:5763` on startup. All tools and the executor share this one connection — there is no reconnection logic needed because everything runs in the same process.
-
-### TCP Relay — Unreal Engine Stream
-A background thread runs at 60Hz, reading the drone's local-frame position and attitude and sending it to Unreal Engine over a TCP socket. This is what drives the 3D visualization. It runs completely independently of the agent and the executor.
-
-### State Management
-A dictionary called `mission_state` is the single source of truth shared across every part of the script — the tools, the executor, the agent, and the CLI. It tracks the flight log, max altitude reached, battery readings, any blocked or failed commands, the last executed command (for resume), and the current mission phase.
-
-### Command Queue and Executor
-The executor thread runs in an infinite loop, pulling commands from `command_queue` one at a time and executing them against the vehicle. Each command is a plain Python dictionary with an `action` key and any relevant parameters. The executor handles all blocking behavior — waiting for the drone to reach altitude, arrive at a waypoint, complete a circle — so the agent never has to wait.
-
-A `stop_flag` threading event allows any active movement to be interrupted cleanly. When the flag is set, whatever loop the executor is in (`_wait_for_arrival`, `_fly_circle`, `keep_moving`) checks it on every 0.5s tick and exits early.
-
-### Condition Monitor
-A second background thread ticks every 0.5s and evaluates any registered condition watches against a live snapshot of vehicle state. When a condition is met it clears the queue, sets the stop flag, and queues the trigger action. This is what allows commands like "switch to AUTO when altitude reaches 15 meters" or "RTL if altitude exceeds 80 meters."
-
-Available fields to watch: `rel_alt`, `battery_level`, `battery_voltage`, `groundspeed`, `armed`, `mode`, `airborne`, `yaw`.
-
-### DroneToolkit
-All flight commands are organized into an Agno `Toolkit` class. Each method maps to one executor action. Tools return a short "queued" string immediately — they do not wait for the drone to finish — which tells the AI to keep calling the next tool without pausing. This is what enables full mission chaining in a single turn.
-
-Available tools:
-
-| Tool | What it does |
-|---|---|
-| `arm_drone` | Arms motors, switches to GUIDED |
-| `takeoff(altitude)` | Takes off to meters |
-| `goto_waypoint(lat, lon, alt)` | Flies to GPS coordinates |
-| `get_location(name)` | Looks up a named preset location |
-| `fly_over(location, altitude)` | Approach + two orbit passes over a named location |
-| `move_direction(direction, distance)` | Moves north/south/east/west/forward/back |
-| `keep_moving(direction)` | Continuous movement until stopped |
-| `adjust_altitude(change)` | Relative altitude change (+up / -down) |
-| `change_altitude(altitude)` | Go to exact altitude |
-| `fly_circle(radius, altitude)` | Orbit current position |
-| `set_speed(speed)` | Set airspeed in m/s |
-| `set_flight_mode(mode)` | Switch to GUIDED / LOITER / AUTO / RTL / LAND |
-| `hold_position` | Stop and freeze immediately |
-| `resume_mission` | Continue last interrupted command |
-| `return_to_launch` | Fly home in GUIDED then land |
-| `land` | Land at current position |
-| `disarm_drone` | Disarm motors (ground only) |
-| `watch_condition` | Register a live condition trigger |
-| `clear_conditions` | Remove all active condition watches |
-| `list_conditions` | Show active condition watches |
-| `get_flight_summary` | Return the full session flight log |
-
-### Preset Locations
-A dictionary of named places near the default SITL spawn point in Canberra, Australia. The agent resolves location names automatically — you can say "fly to the hospital" or "do a flyover of the prison" without providing coordinates.
-
-| Name | Description |
-|---|---|
-| home | SITL launch point |
-| airfield | Canberra Airfield |
-| hospital | Mugga Mugga Hospital |
-| prison | West Jerrabomberra Prison |
-| camp a / camp b | West Jerrabomberra camps |
-| reserve | West Jerrabomberra Reserve |
-| residence 1 / residence 2 | Jerrabomberra residences |
-| creek south | Jerrabomberra Creek South |
-| runway 35 / runway 17 | Airfield runways |
-
-### AI Agent
-The flight agent is built with Agno and connects to any model on OpenRouter. It receives live drone telemetry prepended to every prompt so it always knows the current state. It is configured with:
-
-- `tool_call_limit=50` — can call up to 50 tools in a single turn, enabling full mission chains
-- `compression_manager` — compresses tool result history after every 20 calls to keep context lean
-- `LearningMachine` — captures user preferences, session context, and decisions across sessions
-- `system_message` — explicit rules including the multi-step execution pattern, no-polling rule, and SITL battery note
-
-The model can be switched live from the CLI without restarting the script.
-
-### Non-Blocking CLI
-The CLI loop runs on the main thread and only calls `input()`. Every agent call runs in a background daemon thread, so the prompt is always available. Typing a new command while the drone is mid-mission will interrupt the current operation and start the new one — the queue is cleared and the stop flag is set only if something is already running.
-
----
-
-## Usage
-
-### Flight Commands
-
-Talk to it naturally. The agent understands intent and chains tools automatically:
-
-```
->> arm and take off to 20 meters
->> fly north 500 meters then circle then return home
->> arm, take off to 15m, fly north 100m, fly to the hospital, return home and land
->> do a flyover of the prison at 60 meters
->> scout camp a
->> keep going east
->> stop
->> continue
->> switch to auto mode
->> if altitude exceeds 80 meters RTL
->> when groundspeed drops below 1 RTL
-```
-
-### Slash Commands
-
-These run instantly without involving the AI:
-
-```
-/status          live drone status (no AI call)
-/battery         battery level and voltage
-/position        current GPS coordinates
-/locations       all preset named locations with coordinates
-/model           show the current AI model
-/model <id>      switch model live
-/state           full mission_state dump + active condition watches
-/report          generate a plain-English flight summary
-/mission <desc>  run the 4-step Plan → Safety → Execute → Report workflow
-exit             shut down
-```
-
-### Switching Models
-
-```
-/model google/gemini-2.0-flash-001
-/model qwen/qwen3-235b-a22b
-/model qwen/qwen3-30b-a3b
-/model openai/gpt-4o-mini
-/model x-ai/grok-3-mini-beta
-```
-
-Models that support thinking mode (Qwen3, Qwen3.5) have it disabled automatically via the `enable_thinking: false` API parameter.
-
----
-
-## Notes
-
-- Battery in SITL reads 0% but the drone flies normally — this is expected and the agent is instructed to ignore it
-- Default SITL connection: `tcp:127.0.0.1:5763`
-- Unreal Engine relay: `127.0.0.1:1234`
-- Session data and learned preferences are stored in `drone_sessions.db` (SQLite, created automatically)
-- The script requires `tcp_relay.py` to be in the same directory
+Always review instructions before adapting the system for use with a real drone.
