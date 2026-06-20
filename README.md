@@ -341,6 +341,18 @@ The agent will read the file and execute the instructions step by step.
 
 > Mission files can be edited at any time, allowing you to build a library of reusable drone missions.
 ---
+## Files Created Automatically
+
+The first time the script runs, it will create several folders and files used to store missions, logs and reports.
+
+These include:
+
+- missions/
+- logs/
+- reports/
+- drone_sessions.db
+
+These are generated automatically and do not require any manual setup.
 
 ## Available Commands
 
