@@ -1,3 +1,16 @@
+<table>
+  <tr>
+    <td width="260">
+      <img width="250" alt="AI Plane Flight Agent" src="https://github.com/user-attachments/assets/ae3b6853-b0bd-4239-ae0f-7cefb97cec07" />
+    </td>
+    <td>
+      <h1>AI Drone Flight Agent</h1>
+      <p><strong>Autonomous Flight. Smarter Decisions.</strong></p>
+      <p>An intelligent flight navigation and decision-making agent powered by real-time telemetry and terrain mapping.</p>
+    </td>
+  </tr>
+</table>
+
 # AI Drone Flight Agent | Natural Language Drone Control
 
 Control a simulated drone using plain English.
